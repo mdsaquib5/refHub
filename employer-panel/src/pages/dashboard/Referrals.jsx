@@ -1,0 +1,302 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { toast } from "react-toastify";
+import { getAllReferralsApi, updateReferralStatusApi } from "../../api/referralApi";
+import { getAllJobsApi } from "../../api/jobsApi";
+
+const STATUS_OPTIONS = [
+  "pending",
+  "viewed",
+  "shortlisted",
+  "interviewed",
+  "rejected",
+  "hired",
+];
+
+const STATUS_COLORS = {
+  pending: "#f59e0b",
+  viewed: "#3b82f6",
+  shortlisted: "#10b981",
+  interviewed: "#8b5cf6",
+  rejected: "#ef4444",
+  hired: "#059669",
+};
+
+const Referrals = () => {
+  const queryClient = useQueryClient();
+  const [selectedJob, setSelectedJob] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [resumeModal, setResumeModal] = useState(null);
+
+  const {
+    data: referralsData,
+    isLoading: referralsLoading,
+    isError: referralsError,
+  } = useQuery({
+    queryKey: ["employer-referrals"],
+    queryFn: getAllReferralsApi,
+  });
+
+  const { data: jobsData } = useQuery({
+    queryKey: ["employer-jobs"],
+    queryFn: getAllJobsApi,
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: updateReferralStatusApi,
+    onSuccess: () => {
+      toast.success("Status updated");
+      queryClient.invalidateQueries({ queryKey: ["employer-referrals"] });
+    },
+    onError: (err) => {
+      toast.error(err.response?.data?.message || "Failed to update status");
+    },
+  });
+
+  const handleStatusChange = (referralId, newStatus) => {
+    statusMutation.mutate({ referralId, status: newStatus });
+  };
+
+  const referrals = referralsData?.referrals || [];
+  const jobs = jobsData?.jobs || [];
+
+  const searchLower = searchTerm.toLowerCase();
+  const filteredReferrals = referrals.filter((r) => {
+    const matchesJob =
+      selectedJob === "all" || r.jobPostId?._id === selectedJob;
+
+    const matchesSearch =
+      !searchTerm ||
+      r.candidate?.name?.toLowerCase().includes(searchLower) ||
+      r.candidate?.email?.toLowerCase().includes(searchLower) ||
+      r.candidate?.currentDesignation?.toLowerCase().includes(searchLower) ||
+      r.candidate?.currentOrganization?.toLowerCase().includes(searchLower) ||
+      r.jobPostId?.jobCode?.toLowerCase().includes(searchLower) ||
+      r.jobPostId?.organizationName?.toLowerCase().includes(searchLower) ||
+      r.referredBy?.name?.toLowerCase().includes(searchLower) ||
+      r.referredBy?.email?.toLowerCase().includes(searchLower) ||
+      r.status?.toLowerCase().includes(searchLower);
+
+    return matchesJob && matchesSearch;
+  });
+
+  const formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+
+  const formatCurrency = (amount) => {
+    if (amount == null) return "-";
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+    return `₹${amount.toLocaleString()}`;
+  };
+
+  if (referralsLoading) {
+    return (
+      <div className="referrals-container">
+        <p>Loading referrals...</p>
+      </div>
+    );
+  }
+
+  if (referralsError) {
+    return (
+      <div className="referrals-container">
+        <p>Failed to load referrals</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="referrals-container">
+      <div className="referrals-page-header">
+        <h1>All Referrals</h1>
+        <span className="referral-count">{referrals.length} total</span>
+      </div>
+
+      {/* Filters */}
+      <div className="referrals-filters">
+        <input
+          type="text"
+          className="referral-search"
+          placeholder="Search by name, email, job code, designation, status..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <select
+          className="job-select"
+          value={selectedJob}
+          onChange={(e) => setSelectedJob(e.target.value)}
+        >
+          <option value="all">All Jobs</option>
+          {jobs.map((job) => (
+            <option key={job._id} value={job._id}>
+              {job.jobBasics?.title} ({job.jobCode})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Referral Cards */}
+      {filteredReferrals.length === 0 ? (
+        <p className="no-referrals">No referrals found</p>
+      ) : (
+        <div className="referrals-list">
+          {filteredReferrals.map((referral) => (
+            <div key={referral._id} className="referral-card">
+              <div className="referral-card-top">
+                <h3>{referral.candidate?.name}</h3>
+                <span
+                  className="referral-status-badge"
+                  style={{
+                    backgroundColor:
+                      STATUS_COLORS[referral.status] || "#6b7280",
+                  }}
+                >
+                  {referral.status}
+                </span>
+              </div>
+
+              <p>
+                <strong>Email:</strong> {referral.candidate?.email}
+              </p>
+              <p>
+                <strong>Mobile:</strong> {referral.candidate?.mobile}
+              </p>
+
+              {referral.candidate?.currentDesignation && (
+                <p>
+                  <strong>Role:</strong>{" "}
+                  {referral.candidate.currentDesignation}
+                  {referral.candidate.currentOrganization &&
+                    ` @ ${referral.candidate.currentOrganization}`}
+                </p>
+              )}
+
+              {referral.candidate?.totalExperience != null && (
+                <p>
+                  <strong>Exp:</strong> {referral.candidate.totalExperience} yrs
+                </p>
+              )}
+
+              <div className="referral-ctc-row">
+                {referral.candidate?.currentCTC != null && (
+                  <p>
+                    <strong>Current CTC:</strong>{" "}
+                    {formatCurrency(referral.candidate.currentCTC)}
+                  </p>
+                )}
+                {referral.candidate?.expectedCTC != null && (
+                  <p>
+                    <strong>Expected:</strong>{" "}
+                    {formatCurrency(referral.candidate.expectedCTC)}
+                  </p>
+                )}
+              </div>
+
+              {referral.candidate?.skillSet?.length > 0 && (
+                <div className="referral-skills">
+                  {referral.candidate.skillSet.map((skill, i) => (
+                    <span key={i} className="skill-tag">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Job Info */}
+              {referral.jobPostId && (
+                <div className="referral-job-info">
+                  <span>{referral.jobPostId.jobBasics?.title}</span>
+                  <span className="referral-job-code">
+                    {referral.jobPostId.jobCode}
+                  </span>
+                  {referral.jobPostId.organizationName && (
+                    <span>{referral.jobPostId.organizationName}</span>
+                  )}
+                  {referral.jobPostId.locations?.length > 0 && (
+                    <span>{referral.jobPostId.locations.join(", ")}</span>
+                  )}
+                </div>
+              )}
+
+              {/* Resume */}
+              {referral.resume?.url && (
+                <button
+                  type="button"
+                  className="referral-resume-link"
+                  onClick={() =>
+                    setResumeModal({
+                      url: referral.resume.url,
+                      name: referral.resume.originalName,
+                    })
+                  }
+                >
+                  Resume: {referral.resume.originalName}
+                  {referral.resume.size && (
+                    <span> ({(referral.resume.size / 1024).toFixed(1)} KB)</span>
+                  )}
+                </button>
+              )}
+
+              {/* Referred By + Date */}
+              <div className="referral-meta">
+                <span>
+                  By: {referral.referredBy?.name} ({referral.referredBy?.email})
+                </span>
+                <span>{formatDate(referral.createdAt)}</span>
+              </div>
+
+              {/* Status Update */}
+              <div className="referral-status-update">
+                <label>Update Status:</label>
+                <select
+                  value={referral.status}
+                  onChange={(e) =>
+                    handleStatusChange(referral._id, e.target.value)
+                  }
+                  disabled={statusMutation.isPending}
+                >
+                  {STATUS_OPTIONS.map((s) => (
+                    <option key={s} value={s}>
+                      {s.charAt(0).toUpperCase() + s.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Resume PDF Modal */}
+      {resumeModal && (
+        <div className="resume-modal-overlay" onClick={() => setResumeModal(null)}>
+          <div className="resume-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="resume-modal-header">
+              <h3>{resumeModal.name}</h3>
+              <button
+                className="resume-modal-close"
+                onClick={() => setResumeModal(null)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="resume-modal-body">
+              <iframe
+                src={resumeModal.url}
+                title="Resume PDF"
+                width="100%"
+                height="100%"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Referrals;

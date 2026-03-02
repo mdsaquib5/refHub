@@ -44,12 +44,31 @@ const Referrals = () => {
 
   const statusMutation = useMutation({
     mutationFn: updateReferralStatusApi,
+    onMutate: async ({ referralId, status }) => {
+      await queryClient.cancelQueries({ queryKey: ["employer-referrals"] });
+      const previous = queryClient.getQueryData(["employer-referrals"]);
+      queryClient.setQueryData(["employer-referrals"], (old) => {
+        if (!old?.referrals) return old;
+        return {
+          ...old,
+          referrals: old.referrals.map((r) =>
+            r._id === referralId ? { ...r, status } : r
+          ),
+        };
+      });
+      return { previous };
+    },
     onSuccess: () => {
       toast.success("Status updated");
-      queryClient.invalidateQueries({ queryKey: ["employer-referrals"] });
     },
-    onError: (err) => {
+    onError: (err, vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(["employer-referrals"], context.previous);
+      }
       toast.error(err.response?.data?.message || "Failed to update status");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["employer-referrals"] });
     },
   });
 

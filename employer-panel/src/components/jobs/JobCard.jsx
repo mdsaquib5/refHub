@@ -18,13 +18,32 @@ const JobCard = ({ job }) => {
 
     const statusMutation = useMutation({
         mutationFn: updateJobStatusApi,
+        onMutate: async ({ jobId, status }) => {
+            await queryClient.cancelQueries({ queryKey: ["employer-jobs"] });
+            const previous = queryClient.getQueryData(["employer-jobs"]);
+            queryClient.setQueryData(["employer-jobs"], (old) => {
+                if (!old?.jobs) return old;
+                return {
+                    ...old,
+                    jobs: old.jobs.map((j) =>
+                        j._id === jobId ? { ...j, status } : j
+                    ),
+                };
+            });
+            return { previous };
+        },
         onSuccess: () => {
             toast.success("Job status updated");
+        },
+        onError: (err, vars, context) => {
+            if (context?.previous) {
+                queryClient.setQueryData(["employer-jobs"], context.previous);
+            }
+            toast.error("Failed to update status");
+        },
+        onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
         },
-        onError: () => {
-            toast.error("Failed to update status");
-        }
     });
 
     const handleDelete = () => {

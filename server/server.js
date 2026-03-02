@@ -10,6 +10,7 @@ import jobRoutes from "./routes/jobRouter.js";
 import referralRouter from "./routes/referralRouter.js";
 import userJobRouter from "./routes/publicJobRoutes.js";
 import employerReferralRouter from "./routes/employerReferralRoutes.js";
+import resumeRouter from "./routes/resumeRouter.js";
 
 const app = express();
 connectDb();
@@ -51,6 +52,7 @@ app.use("/api/jobs", jobRoutes);
 app.use("/api/referral", referralRouter);
 app.use("/api/employer/referral", employerReferralRouter);
 app.use("/api/user/jobs", userJobRouter);
+app.use("/api/resume", resumeRouter);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -255,7 +255,7 @@ const MyReferrals = () => {
                       className="resume-link"
                       onClick={() =>
                         setResumeModal({
-                          url: referral.resume.url,
+                          url: `${import.meta.env.VITE_API_URL}/resume/${referral._id}`,
                           name: referral.resume.originalName,
                         })
                       }

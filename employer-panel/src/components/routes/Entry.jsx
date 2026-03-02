@@ -5,7 +5,7 @@ const Entry = () => {
     const { isAuthenticated, authChecked } = useAuthStore();
 
     if (!authChecked) {
-        return <div>Loading...</div>;
+        return <div className="page-loader"><div className="spinner"></div></div>;
     }
 
     if (!isAuthenticated) {

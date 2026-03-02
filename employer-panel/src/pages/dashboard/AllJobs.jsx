@@ -14,7 +14,26 @@ const AllJobs = () => {
   });
 
   if (isLoading) {
-    return <p>Loading jobs...</p>;
+    return (
+      <div className="all-jobs-container">
+        <div className="skeleton-grid">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton-line skeleton-line--title"></div>
+              <div className="skeleton-line skeleton-line--subtitle"></div>
+              <div className="skeleton-line skeleton-line--long"></div>
+              <div className="skeleton-line skeleton-line--medium"></div>
+              <div className="skeleton-line skeleton-line--full"></div>
+              <div className="skeleton-row">
+                <div className="skeleton-chip"></div>
+                <div className="skeleton-chip"></div>
+                <div className="skeleton-chip"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (isError) {

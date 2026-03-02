@@ -86,7 +86,29 @@ const MyReferrals = () => {
     );
   });
 
-  if (loading) return <div className="my-referrals">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="my-referrals">
+        <div className="referrals-header">
+          <h1><BsPersonBadge className="header-icon" /> My Referrals</h1>
+        </div>
+        <div className="skeleton-list">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton-row">
+                <div className="skeleton-chip"></div>
+                <div className="skeleton-line skeleton-line--short" style={{ marginBottom: 0, flex: 1 }}></div>
+              </div>
+              <div className="skeleton-line skeleton-line--title"></div>
+              <div className="skeleton-line skeleton-line--long"></div>
+              <div className="skeleton-line skeleton-line--medium"></div>
+              <div className="skeleton-line skeleton-line--short"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (!referrals.length) {
     return <div className="my-referrals">No referrals found</div>;

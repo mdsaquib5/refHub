@@ -170,7 +170,7 @@ const CreateReferral = () => {
                 onClick={handleJobSearch}
                 disabled={jobLoading}
               >
-                {jobLoading ? "Searching..." : "Search Job"}
+                {jobLoading ? <span className="btn-loading"><span className="spinner spinner--sm"></span>Searching</span> : "Search Job"}
               </button>
             </div>
 
@@ -402,7 +402,7 @@ const CreateReferral = () => {
                   className="submit-btn"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Submitting..." : "Create Referral"}
+                  {isSubmitting ? <span className="btn-loading"><span className="spinner spinner--sm"></span>Submitting</span> : "Create Referral"}
                 </button>
               </div>
             </form>

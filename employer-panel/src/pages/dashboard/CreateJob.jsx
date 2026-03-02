@@ -280,7 +280,7 @@ const CreateJob = () => {
                             className="submit-btn"
                             disabled={createMutation.isPending}
                         >
-                            {createMutation.isPending ? "Creating..." : "Create Job Posting"}
+                            {createMutation.isPending ? <span className="btn-loading"><span className="spinner spinner--sm"></span>Creating</span> : "Create Job Posting"}
                         </button>
                     </div>
 

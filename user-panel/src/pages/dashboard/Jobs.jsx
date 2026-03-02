@@ -86,7 +86,36 @@ const Jobs = () => {
   };
 
   if (loading) {
-    return <div className="jobs-container">Loading jobs...</div>;
+    return (
+      <div className="jobs-container">
+        <div className="jobs-header">
+          <div className="header-content">
+            <h1><BsPersonBadge className="header-icon" /> Job Opportunities</h1>
+            <p>Refer candidates for open positions</p>
+          </div>
+        </div>
+        <div className="skeleton-grid">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton-row">
+                <div className="skeleton-chip"></div>
+                <div className="skeleton-line skeleton-line--short" style={{ marginBottom: 0, flex: 1 }}></div>
+              </div>
+              <div className="skeleton-line skeleton-line--title"></div>
+              <div className="skeleton-line skeleton-line--subtitle"></div>
+              <div className="skeleton-line skeleton-line--long"></div>
+              <div className="skeleton-line skeleton-line--medium"></div>
+              <div className="skeleton-row">
+                <div className="skeleton-chip"></div>
+                <div className="skeleton-chip"></div>
+                <div className="skeleton-chip"></div>
+              </div>
+              <div className="skeleton-btn"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (!jobs.length) {

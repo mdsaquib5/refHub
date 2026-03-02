@@ -115,7 +115,23 @@ const Referrals = () => {
   if (referralsLoading) {
     return (
       <div className="referrals-container">
-        <p>Loading referrals...</p>
+        <div className="referrals-page-header">
+          <h1>All Referrals</h1>
+        </div>
+        <div className="skeleton-list">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton-row">
+                <div className="skeleton-line skeleton-line--short" style={{ marginBottom: 0, flex: 1 }}></div>
+                <div className="skeleton-chip"></div>
+              </div>
+              <div className="skeleton-line skeleton-line--title"></div>
+              <div className="skeleton-line skeleton-line--long"></div>
+              <div className="skeleton-line skeleton-line--medium"></div>
+              <div className="skeleton-line skeleton-line--short"></div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

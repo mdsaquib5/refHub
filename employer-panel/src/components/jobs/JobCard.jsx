@@ -119,7 +119,7 @@ const JobCard = ({ job }) => {
                         onClick={handleDelete}
                         disabled={deleteMutation.isPending}
                     >
-                        {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                        {deleteMutation.isPending ? <span className="btn-loading"><span className="spinner spinner--sm"></span>Deleting</span> : "Delete"}
                     </button>
                 </div>
             </div>

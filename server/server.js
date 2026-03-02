@@ -17,6 +17,8 @@ connectDb();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
+  "https://ref-hub-nine.vercel.app",
+  "https://referral-employer-panel.vercel.app",
 ];
 
 app.use(

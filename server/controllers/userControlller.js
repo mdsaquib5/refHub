@@ -4,6 +4,13 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import validator from "validator";
 
+const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000
+};
+
 /* ===================== SIGNUP ===================== */
 export const signup = async (req, res) => {
     try {
@@ -36,12 +43,7 @@ export const signup = async (req, res) => {
         user.refreshToken = refreshToken;
         await user.save();
 
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            sameSite: "strict",
-            secure: false,
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
+        res.cookie("refreshToken", refreshToken, cookieOptions);
 
         return res.status(201).json({
             success: true,
@@ -74,12 +76,7 @@ export const login = async (req, res) => {
         user.refreshToken = refreshToken;
         await user.save();
 
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            sameSite: "strict",
-            secure: false,
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
+        res.cookie("refreshToken", refreshToken, cookieOptions);
 
         return res.status(200).json({
             success: true,
@@ -132,7 +129,7 @@ export const logout = async (req, res) => {
             }
         }
 
-        res.clearCookie("refreshToken");
+        res.clearCookie("refreshToken", cookieOptions);
 
         return res.status(200).json({
             success: true,

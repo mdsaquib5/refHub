@@ -201,7 +201,7 @@ const JobCard = ({ job }) => {
                     e.target.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
                 }}
             >
-                {status === "active" && "🟢"}{status === "inactive" && "⚫"}
+                {status === "active" && ""} {status === "inactive" && ""}
                 {status.toUpperCase()}
             </button>
         </div>

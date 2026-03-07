@@ -11,21 +11,8 @@ export const employerSignupApi = async (payload) => {
 };
 
 export const employerRefreshApi = async () => {
-  try {
-    const res = await axios.post("/employers/refresh-token", {}, {
-      validateStatus: function (status) {
-        return status >= 200 && status < 300 || status === 401;
-      }
-    });
-
-    if (res.status === 401) {
-      return Promise.reject({ isSilentRefresh: true });
-    }
-
-    return res.data;
-  } catch (error) {
-    throw error;
-  }
+  const res = await axios.post("/employers/refresh-token");
+  return res.data;
 };
 
 export const employerLogoutApi = async () => {

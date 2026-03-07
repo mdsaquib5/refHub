@@ -11,23 +11,8 @@ export const userSignupApi = async (payload) => {
 };
 
 export const userRefreshApi = async () => {
-  try {
-    // validateStatus to prevent axios from throwing an error on 401 only for this request
-    const res = await axios.post("/users/refresh-token", {}, {
-      validateStatus: function (status) {
-        return status >= 200 && status < 300 || status === 401;
-      }
-    });
-
-    // If it's a 401, manually reject without triggering the global interceptor's red console error
-    if (res.status === 401) {
-      return Promise.reject({ isSilentRefresh: true });
-    }
-
-    return res.data;
-  } catch (error) {
-    throw error;
-  }
+  const res = await axios.post("/users/refresh-token");
+  return res.data;
 };
 
 export const userLogoutApi = async () => {

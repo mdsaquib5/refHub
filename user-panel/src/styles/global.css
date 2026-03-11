@@ -35,6 +35,11 @@
 
 
 /* ===== RESET ===== */
+body {
+  background-color: var(--black);
+  color: var(--text-primary);
+}
+
 * {
   padding: 0;
   margin: 0;
@@ -84,9 +89,9 @@ img {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: var(--black);
-  background: radial-gradient(circle at top left, rgba(124, 58, 237, 0.1), transparent),
-              radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.05), transparent);
+  background-color: var(--black);
+  background-image: radial-gradient(circle at top left, rgba(124, 58, 237, 0.12), transparent),
+                    radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.08), transparent);
 }
 
 /* ===== DASHBOARD LAYOUT ===== */
@@ -2297,4 +2302,69 @@ form :is(input, textarea, select):-webkit-autofill:focus {
   .skeleton-grid {
     grid-template-columns: 1fr;
   }
-}
+}
+
+/* ===== UTILITIES & PLUGINS ===== */
+
+/* Toast Notification Design */
+.Toastify__toast {
+  background: #18181b !important;
+  color: #fafafa !important;
+  border-radius: 12px !important;
+  border: 1px solid #27272a !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5) !important;
+  font-family: inherit !important;
+  padding: 16px !important;
+}
+
+.Toastify__toast--success {
+  border-left: 4px solid #10b981 !important;
+}
+
+.Toastify__toast--error {
+  border-left: 4px solid #ef4444 !important;
+}
+
+.Toastify__toast--info {
+  border-left: 4px solid #3b82f6 !important;
+}
+
+.Toastify__toast--warning {
+  border-left: 4px solid #f59e0b !important;
+}
+
+.Toastify__close-button {
+  color: #71717a !important;
+  opacity: 0.7;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1;
+}
+
+.Toastify__progress-bar {
+  background: #7c3aed !important;
+}
+
+/* Custom Skill Chips - Unified Dark Theme */
+.skill-chip, .skill-tag {
+  background: rgba(124, 58, 237, 0.1) !important;
+  color: #a78bfa !important;
+  padding: 6px 14px !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  border: 1px solid rgba(124, 58, 237, 0.2) !important;
+  transition: all 0.25s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: fit-content !important;
+}
+
+.skill-chip:hover, .skill-tag:hover {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+

@@ -424,6 +424,7 @@ img {
 
 .form-group {
   display: flex;
+  margin-bottom: 12px;
   flex-direction: column;
   gap: 8px;
 }
@@ -2367,4 +2368,4 @@ form :is(input, textarea, select):-webkit-autofill:focus {
   color: #ffffff !important;
   transform: translateY(-1px);
 }
-
+

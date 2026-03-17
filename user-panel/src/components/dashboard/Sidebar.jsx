@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { FiBriefcase, FiUserPlus, FiUsers, FiLogOut } from "react-icons/fi";
 import { useAuthStore } from "../../store/authStore";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const logout = useAuthStore((s) => s.logout);
   const user = useAuthStore((s) => s.user);
   const navigate = useNavigate();
@@ -11,21 +12,48 @@ const Sidebar = () => {
     navigate("/login", { replace: true });
   };
 
-  const initial = user?.name?.charAt(0)?.toUpperCase() || "U";
-
   return (
-    <aside className="sidebar">
-      <div className="sidebar-profile">
-        <div className="sidebar-avatar">{initial}</div>
-        <div className="sidebar-user-info">
-          <span className="sidebar-user-name">{user?.name || "User"}</span>
-          <span className="sidebar-user-email">{user?.email || ""}</span>
+    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+      <div className="sidebar-header">
+        <div className="sidebar-profile">
+          <span className="sidebar-user-name">{user?.name || "User Account"}</span>
+          <span className="sidebar-user-email">{user?.email || "user@alten.com"}</span>
         </div>
       </div>
-      <NavLink to="/dashboard/jobs">Jobs</NavLink>
-      <NavLink to="/dashboard/refer">Refer Candidate</NavLink>
-      <NavLink to="/dashboard/referrals">My Referrals</NavLink>
-      <button onClick={handleLogout}>Logout</button>
+
+      <nav>
+        <NavLink 
+          to="/dashboard/jobs" 
+          onClick={onClose} 
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          <FiBriefcase size={18} />
+          <span>Browse Jobs</span>
+        </NavLink>
+        <NavLink 
+          to="/dashboard/refer" 
+          onClick={onClose} 
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          <FiUserPlus size={18} />
+          <span>Refer Candidate</span>
+        </NavLink>
+        <NavLink 
+          to="/dashboard/referrals" 
+          onClick={onClose} 
+          className={({ isActive }) => (isActive ? 'active' : '')}
+        >
+          <FiUsers size={18} />
+          <span>My Referrals</span>
+        </NavLink>
+      </nav>
+
+      <div className="sidebar-footer" style={{ padding: '16px', borderTop: '1px solid var(--border)' }}>
+        <button onClick={handleLogout} className="logout-btn" style={{ margin: 0, width: '100%' }}>
+          <FiLogOut size={18} />
+          <span>Logout</span>
+        </button>
+      </div>
     </aside>
   );
 };

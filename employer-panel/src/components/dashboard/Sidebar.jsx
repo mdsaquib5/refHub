@@ -24,7 +24,7 @@ const navItems = [
     },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
     const logout = useAuthStore((state) => state.logout);
     const user = useAuthStore((state) => state.user);
     const navigate = useNavigate();
@@ -34,13 +34,10 @@ const Sidebar = () => {
         navigate("/login", { replace: true });
     };
 
-    const initial = user?.companyName?.charAt(0)?.toUpperCase() || "E";
-
     return (
-        <aside className="sidebar">
+        <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
             <div className="sidebar-header">
                 <div className="sidebar-profile">
-                    <div className="sidebar-avatar">{initial}</div>
                     <div className="sidebar-user-info">
                         <span className="sidebar-user-name">
                             {user?.companyName || "Employer"}
@@ -67,6 +64,7 @@ const Sidebar = () => {
                                             <li key={child.path}>
                                                 <NavLink
                                                     to={child.path}
+                                                    onClick={onClose}
                                                     className={({ isActive }) =>
                                                         `nav-sublink ${isActive ? 'active' : ''}`
                                                     }
@@ -81,6 +79,7 @@ const Sidebar = () => {
                             ) : (
                                 <NavLink
                                     to={item.path}
+                                    onClick={onClose}
                                     className={({ isActive }) =>
                                         `nav-link ${isActive ? 'active' : ''}`
                                     }

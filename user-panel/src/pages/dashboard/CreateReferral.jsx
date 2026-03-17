@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { FiX } from "react-icons/fi";
+import { MdAttachFile, MdPerson, MdCancel } from "react-icons/md";
+import {
+  HiOutlineCode,
+  HiOutlineOfficeBuilding,
+  HiOutlineLocationMarker,
+} from "react-icons/hi";
 import { getJobByJobCode, createReferral } from "../../api/referApi";
 
 const CreateReferral = () => {
@@ -37,18 +44,19 @@ const CreateReferral = () => {
   }, [searchParams]);
 
   const searchJobByCode = async (code) => {
+    if (!code) return;
     setJobLoading(true);
     setJobError("");
     setJobDetails(null);
     try {
       const job = await getJobByJobCode(code);
       if (!job) {
-        setJobError("Invalid Job Code");
+        setJobError("No job found with this code. Please verify.");
       } else {
         setJobDetails(job);
       }
     } catch {
-      setJobError("Failed to fetch job");
+      setJobError("Failed to fetch job details. Please try again.");
     } finally {
       setJobLoading(false);
     }
@@ -105,12 +113,12 @@ const CreateReferral = () => {
     e.preventDefault();
 
     if (!selectedFile) {
-      toast.error("Resume PDF is required");
+      toast.error("Candidate Resume (PDF) is required");
       return;
     }
 
     if (!jobDetails?._id) {
-      toast.error("Please select a valid job first");
+      toast.error("Please search and select a valid job first");
       return;
     }
 
@@ -131,283 +139,176 @@ const CreateReferral = () => {
 
     try {
       await createReferral(payload);
-      toast.success("Referral created successfully!");
+      toast.success("Candidate referred successfully!");
       navigate("/dashboard/referrals");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Referral failed");
+      toast.error(err.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="create-referral">
-      <div className="referral-container">
-        <div className="form-header">
-          <div>
-            <h1>Create Referral</h1>
-            <p>Search job by Job Code and refer a candidate</p>
+    <div className="create-referral-page">
+      <div className="referral-header-section" style={{ marginBottom: '40px' }}>
+        <h1 className="page-title">Refer a Candidate</h1>
+        <p style={{ color: 'var(--text-secondary)' }}>Help your friends join Alten India by referring them for open positions.</p>
+      </div>      <div className="referral-form-layout animate-fade-in">
+        {/* Step 1: Job Selection */}
+        <div className="card" style={{ marginBottom: '24px' }}>
+          <div className="card-header">
+            <div className="flex-row">
+              <div className="stat-icon" style={{ width: '32px', height: '32px', borderRadius: '8px', fontSize: '14px' }}>1</div>
+              <h3 style={{ margin: 0, fontSize: '18px' }}>Target Opportunity</h3>
+            </div>
           </div>
-        </div>
 
-        <div className="referral-form">
-          {/* Job Search */}
-          <div className="form-section">
-            <h2>Job Search</h2>
-            <div className="form-grid">
-              <div className="form-group">
-                <label>Job Code</label>
-                <input
-                  type="text"
-                  placeholder="Enter Job Code (e.g. JOB-614376)"
-                  value={jobCode}
-                  onChange={(e) => setJobCode(e.target.value)}
-                />
+          <div className="card-body">
+            <div className="form-group">
+              <label>Enter Job Code</label>
+              <div className="flex-row" style={{ gap: '12px' }}>
+                <div className="search-input-group">
+                  <HiOutlineCode size={18} />
+                  <input
+                    type="text"
+                    placeholder="e.g. JOB-827806"
+                    value={jobCode}
+                    onChange={(e) => setJobCode(e.target.value)}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={handleJobSearch}
+                  disabled={jobLoading}
+                >
+                  {jobLoading ? "..." : "Fetch"}
+                </button>
               </div>
-              <button
-                type="button"
-                className="submit-btn"
-                onClick={handleJobSearch}
-                disabled={jobLoading}
-              >
-                {jobLoading ? <span className="btn-loading"><span className="spinner spinner--sm"></span>Searching</span> : "Search Job"}
-              </button>
             </div>
 
-            {jobError && <p className="error-message">{jobError}</p>}
+            {jobError && (
+              <div className="text-xs danger-text flex-row" style={{ marginTop: '10px' }}>
+                <MdCancel /> {jobError}
+              </div>
+            )}
 
             {jobDetails && (
-              <div className="job-summary-card">
-                <h3>{jobDetails.jobBasics?.title}</h3>
-                <div className="job-summary-grid">
-                  <p>
-                    <strong>Job Code:</strong> {jobDetails.jobCode}
-                  </p>
-                  <p>
-                    <strong>Company:</strong> {jobDetails.organizationName}
-                  </p>
-                  {jobDetails.locations?.length > 0 && (
-                    <p>
-                      <strong>Locations:</strong>{" "}
-                      {jobDetails.locations.join(", ")}
-                    </p>
-                  )}
-                  {jobDetails.jobBasics?.department && (
-                    <p>
-                      <strong>Department:</strong>{" "}
-                      {jobDetails.jobBasics.department}
-                    </p>
-                  )}
-                  {jobDetails.experience && (
-                    <p>
-                      <strong>Experience:</strong> {jobDetails.experience.min} -{" "}
-                      {jobDetails.experience.max} yrs
-                    </p>
-                  )}
-                  {jobDetails.salaryRange && (
-                    <p>
-                      <strong>Salary:</strong>{" "}
-                      {formatSalary(
-                        jobDetails.salaryRange.min,
-                        jobDetails.salaryRange.max
-                      )}{" "}
-                      /yr
-                    </p>
-                  )}
-                  {jobDetails.workplace?.workType && (
-                    <p>
-                      <strong>Work Type:</strong> {jobDetails.workplace.workType}
-                    </p>
-                  )}
-                  {jobDetails.skillsRequired?.length > 0 && (
-                    <p>
-                      <strong>Skills:</strong>{" "}
-                      {jobDetails.skillsRequired.join(", ")}
-                    </p>
-                  )}
+              <div className="info-item" style={{ marginTop: '20px', padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                <span className="text-xs success-text" style={{ fontWeight: 800 }}>POSITION VERIFIED</span>
+                <h4 style={{ color: '#fff', fontSize: '16px', margin: '4px 0 12px' }}>{jobDetails.jobBasics?.title}</h4>
+                <div className="grid-2">
+                  <div className="info-item">
+                    <span className="info-label">Company</span>
+                    <span className="info-value">{jobDetails.organizationName}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">ID</span>
+                    <span className="info-value">{jobDetails.jobCode}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Dept</span>
+                    <span className="info-value">{jobDetails.jobBasics?.department}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">Location</span>
+                    <span className="info-value">{jobDetails.locations?.join(", ")}</span>
+                  </div>
                 </div>
               </div>
             )}
           </div>
+        </div>
 
-          {/* Candidate Form */}
-          {jobDetails && (
-            <form onSubmit={handleSubmit}>
-              <div className="form-section">
-                <h2>Candidate Information</h2>
-                <div className="form-grid">
+        {/* Step 2: Candidate Information */}
+        {jobDetails && (
+          <div className="card animate-fade-in shadow-lg">
+            <div className="card-header">
+              <div className="flex-row">
+                <div className="stat-icon" style={{ width: '32px', height: '32px', borderRadius: '8px', fontSize: '14px' }}>2</div>
+                <h3 style={{ margin: 0, fontSize: '18px' }}>Candidate Details</h3>
+              </div>
+            </div>
+
+            <div className="card-body">
+              <form onSubmit={handleSubmit}>
+                <div className="grid-2">
                   <div className="form-group">
                     <label>Full Name</label>
-                    <input
-                      name="candidateName"
-                      value={formData.candidateName}
-                      placeholder="Candidate's full name"
-                      onChange={handleInputChange}
-                      required
-                    />
+                    <input name="candidateName" placeholder="Candidate Name" value={formData.candidateName} onChange={handleInputChange} required />
                   </div>
                   <div className="form-group">
-                    <label>Email</label>
-                    <input
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      placeholder="candidate@example.com"
-                      onChange={handleInputChange}
-                      required
-                    />
+                    <label>Email Address</label>
+                    <input name="email" type="email" placeholder="email@example.com" value={formData.email} onChange={handleInputChange} required />
                   </div>
                   <div className="form-group">
-                    <label>Mobile</label>
-                    <input
-                      name="mobile"
-                      type="tel"
-                      value={formData.mobile}
-                      placeholder="10-digit mobile number"
-                      pattern="[0-9]{10}"
-                      onChange={handleInputChange}
-                      required
-                    />
+                    <label>Mobile No.</label>
+                    <input name="mobile" placeholder="10 digits" pattern="[0-9]{10}" value={formData.mobile} onChange={handleInputChange} required />
                   </div>
                   <div className="form-group">
-                    <label>Current Designation</label>
-                    <input
-                      name="currentDesignation"
-                      value={formData.currentDesignation}
-                      placeholder="e.g. Senior Developer"
-                      onChange={handleInputChange}
-                      required
-                    />
+                    <label>Total Experience (Yrs)</label>
+                    <input name="totalExperience" type="number" step="0.1" placeholder="Years" value={formData.totalExperience} onChange={handleInputChange} required />
+                  </div>
+                </div>
+
+                <div className="grid-2">
+                  <div className="form-group">
+                    <label>Designation</label>
+                    <input name="currentDesignation" placeholder="e.g. Lead" value={formData.currentDesignation} onChange={handleInputChange} required />
                   </div>
                   <div className="form-group">
-                    <label>Current Organization</label>
-                    <input
-                      name="currentOrganization"
-                      value={formData.currentOrganization}
-                      placeholder="e.g. TCS, Infosys"
-                      onChange={handleInputChange}
-                    />
+                    <label>Employer</label>
+                    <input name="currentOrganization" placeholder="Company Name" value={formData.currentOrganization} onChange={handleInputChange} />
                   </div>
-                  <div className="form-group">
-                    <label>Total Experience (years)</label>
-                    <input
-                      name="totalExperience"
-                      type="number"
-                      value={formData.totalExperience}
-                      placeholder="e.g. 2.5"
-                      step="0.1"
-                      min="0"
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
+                </div>
+
+                <div className="grid-2">
                   <div className="form-group">
                     <label>Current CTC</label>
-                    <input
-                      name="currentCTC"
-                      type="number"
-                      value={formData.currentCTC}
-                      placeholder="e.g. 600000"
-                      onChange={handleInputChange}
-                      required
-                    />
+                    <input name="currentCTC" type="number" placeholder="INR" value={formData.currentCTC} onChange={handleInputChange} required />
                   </div>
                   <div className="form-group">
                     <label>Expected CTC</label>
-                    <input
-                      name="expectedCTC"
-                      type="number"
-                      value={formData.expectedCTC}
-                      placeholder="e.g. 900000"
-                      onChange={handleInputChange}
-                      required
-                    />
+                    <input name="expectedCTC" type="number" placeholder="INR" value={formData.expectedCTC} onChange={handleInputChange} required />
                   </div>
                 </div>
-              </div>
 
-              {/* Skills */}
-              <div className="form-section">
-                <h2>Skills</h2>
-                <div className="skills-input-group">
-                  <div className="skill-input-wrapper">
-                    <input
-                      type="text"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Type a skill and press Enter"
-                      className="skill-input"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddSkill}
-                      className="add-skill-btn"
-                    >
-                      Add
-                    </button>
+                <div className="form-group">
+                  <label>Skills</label>
+                  <div className="flex-row" style={{ gap: '10px' }}>
+                    <input type="text" placeholder="Type and press Enter" value={skillInput} onChange={(e) => setSkillInput(e.target.value)} onKeyDown={handleKeyDown} />
+                    <button type="button" className="btn-primary" onClick={handleAddSkill}>Add</button>
                   </div>
-                  {skills.length > 0 && (
-                    <div className="skills-list">
-                      {skills.map((skill) => (
-                        <span key={skill} className="skill-tag">
-                          {skill}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveSkill(skill)}
-                            className="remove-skill"
-                          >
-                            x
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Resume Upload */}
-              <div className="form-section">
-                <h2>Resume</h2>
-                <div className="file-upload">
-                  <input
-                    type="file"
-                    id="resume-upload"
-                    accept=".pdf"
-                    onChange={handleFileChange}
-                    className="file-input"
-                  />
-                  <label htmlFor="resume-upload" className="file-label">
-                    <span className="upload-icon">+</span>
-                    <div className="upload-text">
-                      <span className="primary-text">
-                        {selectedFile
-                          ? selectedFile.name
-                          : "Click to upload resume"}
+                  <div className="flex-row" style={{ flexWrap: 'wrap', gap: '8px', marginTop: '12px' }}>
+                    {skills.map(s => (
+                      <span key={s} className="skill-chip">
+                        {s} <FiX size={14} style={{ cursor: 'pointer', marginLeft: '6px' }} onClick={() => handleRemoveSkill(s)} />
                       </span>
-                      <span className="secondary-text">
-                        {selectedFile
-                          ? `(${(selectedFile.size / 1024).toFixed(1)} KB)`
-                          : "PDF files only (Max 10MB)"}
-                      </span>
-                    </div>
-                  </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Submit */}
-              <div className="form-actions">
-                <button
-                  type="submit"
-                  className="submit-btn"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? <span className="btn-loading"><span className="spinner spinner--sm"></span>Submitting</span> : "Create Referral"}
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
+                <div className="form-group">
+                  <label>Resume (PDF Only)</label>
+                  <div style={{ border: '2px dashed var(--border)', padding: '30px', borderRadius: '12px', textAlign: 'center', position: 'relative' }}>
+                    <input type="file" accept=".pdf" onChange={handleFileChange} style={{ opacity: 0, position: 'absolute', inset: 0, cursor: 'pointer' }} />
+                    <div className="flex-col" style={{ alignItems: 'center' }}>
+                      <MdAttachFile size={24} className="text-muted" />
+                      <span style={{ fontWeight: 600, fontSize: '14px', marginTop: '8px' }}>{selectedFile ? selectedFile.name : "Select Document"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="card-footer" style={{ background: 'transparent', padding: '24px 0 0' }}>
+                  <span className="text-xs text-muted">* Ensure details match the resume.</span>
+                  <button type="submit" className="btn-primary" disabled={isSubmitting} style={{ padding: '14px 40px' }}>
+                    {isSubmitting ? "..." : "Create Referral"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -14,12 +14,12 @@ const STATUS_OPTIONS = [
 ];
 
 const STATUS_COLORS = {
-  pending: "#f59e0b",
-  viewed: "#3b82f6",
-  shortlisted: "#10b981",
-  interviewed: "#8b5cf6",
-  rejected: "#ef4444",
-  hired: "#059669",
+  pending: "#00B0FF",     // Alten Info Blue
+  viewed: "#007BFF",      // Alten Secondary Blue
+  shortlisted: "#00E676",  // Greenish Cyan
+  interviewed: "#003A8F", // Alten Primary Deep Blue
+  rejected: "#FF4D4D",    // Subtle Red
+  hired: "#00E676",       // Vibrant success
 };
 
 const Referrals = () => {
@@ -184,51 +184,43 @@ const Referrals = () => {
               <div className="referral-card-top">
                 <h3>{referral.candidate?.name}</h3>
                 <span
-                  className="referral-status-badge"
-                  style={{
-                    backgroundColor:
-                      STATUS_COLORS[referral.status] || "#6b7280",
-                  }}
+                  className={`referral-status-badge status-${referral.status}`}
                 >
                   {referral.status}
                 </span>
               </div>
 
-              <p>
-                <strong>Email:</strong> {referral.candidate?.email}
-              </p>
-              <p>
-                <strong>Mobile:</strong> {referral.candidate?.mobile}
-              </p>
+              <div className="role-info">
+                <div className="info-row">
+                  <span className="label">Contact Email</span>
+                  <span>{referral.candidate?.email}</span>
+                </div>
+                <div className="info-row">
+                  <span className="label">Phone Number</span>
+                  <span>{referral.candidate?.mobile || "N/A"}</span>
+                </div>
+                <div className="info-row">
+                  <span className="label">Current Designation</span>
+                  <span>
+                    {referral.candidate?.currentDesignation || "N/A"}
+                    {referral.candidate?.currentOrganization && ` @ ${referral.candidate.currentOrganization}`}
+                  </span>
+                </div>
+                <div className="info-row">
+                  <span className="label">Total Experience</span>
+                  <span>{referral.candidate?.totalExperience ?? "0"} Years</span>
+                </div>
+              </div>
 
-              {referral.candidate?.currentDesignation && (
-                <p>
-                  <strong>Role:</strong>{" "}
-                  {referral.candidate.currentDesignation}
-                  {referral.candidate.currentOrganization &&
-                    ` @ ${referral.candidate.currentOrganization}`}
-                </p>
-              )}
-
-              {referral.candidate?.totalExperience != null && (
-                <p>
-                  <strong>Exp:</strong> {referral.candidate.totalExperience} yrs
-                </p>
-              )}
-
-              <div className="referral-ctc-row">
-                {referral.candidate?.currentCTC != null && (
-                  <p>
-                    <strong>Current CTC:</strong>{" "}
-                    {formatCurrency(referral.candidate.currentCTC)}
-                  </p>
-                )}
-                {referral.candidate?.expectedCTC != null && (
-                  <p>
-                    <strong>Expected:</strong>{" "}
-                    {formatCurrency(referral.candidate.expectedCTC)}
-                  </p>
-                )}
+              <div className="role-info" style={{ marginTop: '16px' }}>
+                <div className="info-row">
+                  <span className="label">Current CTC</span>
+                  <span>{formatCurrency(referral.candidate?.currentCTC)}</span>
+                </div>
+                <div className="info-row">
+                  <span className="label">Expected CTC</span>
+                  <span>{formatCurrency(referral.candidate?.expectedCTC)}</span>
+                </div>
               </div>
 
               {referral.candidate?.skillSet?.length > 0 && (
@@ -243,45 +235,40 @@ const Referrals = () => {
 
               {/* Job Info */}
               {referral.jobPostId && (
-                <div className="referral-job-info">
-                  <span>{referral.jobPostId.jobBasics?.title}</span>
-                  <span className="referral-job-code">
-                    {referral.jobPostId.jobCode}
-                  </span>
-                  {referral.jobPostId.organizationName && (
-                    <span>{referral.jobPostId.organizationName}</span>
-                  )}
-                  {referral.jobPostId.locations?.length > 0 && (
-                    <span>{referral.jobPostId.locations.join(", ")}</span>
-                  )}
+                <div className="referral-job-info" style={{ background: 'rgba(255,255,255,0.02)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-light)' }}>
+                  <span className="label" style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '800' }}>Applied For</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                    <span style={{ fontWeight: '700', color: '#fff' }}>{referral.jobPostId.jobBasics?.title}</span>
+                    <span className="referral-job-code">{referral.jobPostId.jobCode}</span>
+                  </div>
                 </div>
               )}
 
               {/* Resume */}
               {referral.resume?.url && (
-                <button
-                  type="button"
-                  className="referral-resume-link"
-                  onClick={() =>
-                    setResumeModal({
-                      url: `${import.meta.env.VITE_API_URL}/resume/${referral._id}`,
-                      name: referral.resume.originalName,
-                    })
-                  }
-                >
-                  Resume: {referral.resume.originalName}
-                  {referral.resume.size && (
-                    <span> ({(referral.resume.size / 1024).toFixed(1)} KB)</span>
-                  )}
-                </button>
+                <div style={{ marginTop: '16px' }}>
+                  <button
+                    type="button"
+                    className="referral-resume-link"
+                    onClick={() =>
+                      setResumeModal({
+                        url: `${import.meta.env.VITE_API_URL}/resume/${referral._id}`,
+                        name: referral.resume.originalName,
+                      })
+                    }
+                  >
+                    View Resume: {referral.resume.originalName}
+                  </button>
+                </div>
               )}
 
-              {/* Referred By + Date */}
-              <div className="referral-meta">
-                <span>
-                  By: {referral.referredBy?.name} ({referral.referredBy?.email})
+              <div className="referral-meta" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                  By: <strong>{referral.referredBy?.name}</strong>
                 </span>
-                <span>{formatDate(referral.createdAt)}</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                  {formatDate(referral.createdAt)}
+                </span>
               </div>
 
               {/* Status Update */}

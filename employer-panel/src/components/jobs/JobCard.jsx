@@ -156,52 +156,29 @@ const JobCard = ({ job }) => {
 
             <div className="role-info">
                 <div className="info-row">
-                    <span className="label">Role:</span>
-                    <span>{jobBasics.jobCategory}</span>
-                </div>
-                <div className="info-row">
-                    <span className="label">Department:</span>
+                    <span className="label">Department</span>
                     <span>{jobBasics.department}</span>
                 </div>
                 <div className="info-row">
-                    <span className="label">Employment Type:</span>
-                    <span>
-                        {workplace.workType} - {workplace.seniorityLevel}
-                    </span>
+                    <span className="label">Job Category</span>
+                    <span>{jobBasics.jobCategory}</span>
+                </div>
+                <div className="info-row">
+                    <span className="label">Workplace Style</span>
+                    <span>{workplace.workType}</span>
+                </div>
+                <div className="info-row">
+                    <span className="label">Seniority Level</span>
+                    <span>{workplace.seniorityLevel}</span>
                 </div>
             </div>
 
             {/* STATUS BADGE */}
             <button
-                className="status-badge"
+                className={`status-badge status-${status}`}
                 onClick={toggleStatus}
-                style={{
-                    cursor: "pointer",
-                    backgroundColor:
-                        status === "active" ? "#28a745" : "#6c757d",
-                    border: "none",
-                    borderRadius: "6px",
-                    padding: "6px 12px",
-                    color: "white",
-                    fontWeight: "600",
-                    fontSize: "12px",
-                    transition: "all 0.2s ease",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "4px"
-                }}
                 title="Click to toggle status"
-                onMouseEnter={(e) => {
-                    e.target.style.transform = "scale(1.05)";
-                    e.target.style.boxShadow = "0 4px 8px rgba(0,0,0,0.2)";
-                }}
-                onMouseLeave={(e) => {
-                    e.target.style.transform = "scale(1)";
-                    e.target.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)";
-                }}
             >
-                {status === "active" && ""} {status === "inactive" && ""}
                 {status.toUpperCase()}
             </button>
         </div>

@@ -13,6 +13,10 @@ const Login = () => {
 
   const navigate = useNavigate();
 
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -28,48 +32,48 @@ const Login = () => {
   };
 
   return (
-    <div className="container">
-      <form className="form" onSubmit={handleSubmit}>
-        <h2 className="page-title">
-          {mode === "login" ? "Login to your account" : "Create a new account"}
+    <div className="login-container">
+      <form className="login-card" onSubmit={handleSubmit}>
+        <div className="mobile-logo" style={{ textAlign: 'center', marginBottom: '10px', fontSize: '11px', fontWeight: 900, letterSpacing: '4px', color: 'var(--primary-accent)' }}>ALTEN INDIA</div>
+        <h2>
+          {mode === "login" ? "Welcome Back" : "User Signup"}
         </h2>
+        <p className="subtitle">
+          {mode === "login" 
+            ? "Enter your credentials to access your portal" 
+            : "Join the Alten India referral network"}
+        </p>
 
         {mode === "signup" && (
-          <div className="form-group">
-            <label>Name</label>
-            <input
-              type="text"
-              placeholder="Your full name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              required
-            />
-          </div>
+          <input
+            type="text"
+            name="name"
+            placeholder="Your full name"
+            value={form.name}
+            onChange={handleChange}
+            required
+          />
         )}
 
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            placeholder="you@example.com"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            required
-          />
-        </div>
+        <input
+          type="email"
+          name="email"
+          placeholder="you@example.com"
+          value={form.email}
+          onChange={handleChange}
+          required
+        />
 
-        <div className="form-group">
-          <label>Password</label>
-          <input
-            type="password"
-            placeholder="Enter your password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            required
-          />
-        </div>
+        <input
+          type="password"
+          name="password"
+          placeholder="Enter your password"
+          value={form.password}
+          onChange={handleChange}
+          required
+        />
 
-        <button type="submit" className="btn btn-primary" disabled={loading}>
+        <button type="submit" disabled={loading}>
           {loading
             ? "Please wait..."
             : mode === "login"
@@ -77,24 +81,18 @@ const Login = () => {
               : "Sign Up"}
         </button>
 
-        <p className="auth-toggle-text">
+        <p className="toggle-text">
           {mode === "login" ? (
             <>
               Don't have an account?{" "}
-              <span
-                className="auth-toggle-link"
-                onClick={() => setMode("signup")}
-              >
+              <span onClick={() => setMode("signup")}>
                 Sign up
               </span>
             </>
           ) : (
             <>
               Already have an account?{" "}
-              <span
-                className="auth-toggle-link"
-                onClick={() => setMode("login")}
-              >
+              <span onClick={() => setMode("login")}>
                 Login
               </span>
             </>

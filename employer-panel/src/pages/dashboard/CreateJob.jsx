@@ -30,7 +30,7 @@ const CreateJob = () => {
     const createMutation = useMutation({
         mutationFn: createJobApi,
         onSuccess: () => {
-            toast.success("Job created successfully 🚀");
+            toast.success("Job created successfully");
             queryClient.invalidateQueries(["employer-jobs"]);
             navigate("/dashboard/jobs/all");
         },
